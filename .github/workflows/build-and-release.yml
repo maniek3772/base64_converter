@@ -36,12 +36,17 @@ jobs:
     # 5. Get version from tag (np. v1.0.0)
     - name: Get tag version
       id: get_version
-      run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      run: |
+        echo "GITHUB_REF=${GITHUB_REF}"  # Debugging step to check the value of GITHUB_REF
+        VERSION=${GITHUB_REF##*/}  # Extract version from the ref
+        echo "VERSION=${VERSION}"  # Debugging step to check the value of VERSION
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
     # 6. Change name EXE to Base64Converter_vX.X.X.exe
     - name: Rename EXE file
       run: |
-        Rename-Item dist/main.exe Base64Converter_${{ env.VERSION }}.exe
+        echo "Renaming EXE file to Base64Converter_${{ env.VERSION }}.exe"
+        Rename-Item dist/main.exe "dist/Base64Converter_${{ env.VERSION }}.exe"
 
     # 7. Generate CHANGELOG.md
     - name: Generate CHANGELOG.md
@@ -50,6 +55,7 @@ jobs:
         echo "" >> CHANGELOG.md
         git fetch --tags
         $prevTag = git describe --tags --abbrev=0 HEAD^ 2>$null
+        echo "Previous Tag: $prevTag"  # Debugging step to check the previous tag value
         if ($prevTag) {
           git log $prevTag..HEAD --pretty=format:"* %s (%an)" >> CHANGELOG.md
         } else {
