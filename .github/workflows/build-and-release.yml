@@ -34,19 +34,19 @@ jobs:
         pyinstaller --onefile --noconsole main.py
 
     # 5. Get version from tag (np. v1.0.0)
-    - name: Get tag version
-      id: get_version
+    - name: Extract version from ref (PowerShell)
+      shell: pwsh
       run: |
-        echo "GITHUB_REF=${GITHUB_REF}"  # Debugging step to check the value of GITHUB_REF
-        VERSION=${GITHUB_REF##*/}  # Extract version from the ref
-        echo "VERSION=${VERSION}"  # Debugging step to check the value of VERSION
-        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        Write-Host "GITHUB_REF=$env:GITHUB_REF"
+        $version = $env:GITHUB_REF -replace '^refs/tags/', ''
+        Write-Host "VERSION=$version"
 
     # 6. Change name EXE to Base64Converter_vX.X.X.exe
-    - name: Rename EXE file
+    - name: Rename EXE with version (PowerShell)
+      shell: pwsh
       run: |
-        echo "Renaming EXE file to Base64Converter_${{ env.VERSION }}.exe"
-        Rename-Item dist/main.exe "dist/Base64Converter_${{ env.VERSION }}.exe"
+        $version = $env:GITHUB_REF -replace '^refs/tags/', ''
+        Rename-Item -Path "Base64Converter_.exe" -NewName "Base64Converter_$version.exe"
 
     # 7. Generate CHANGELOG.md
     - name: Generate CHANGELOG.md
