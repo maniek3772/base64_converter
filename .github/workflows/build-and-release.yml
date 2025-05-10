@@ -68,8 +68,12 @@ jobs:
         # Check if the event is a pull request or a push
         if ($env.GITHUB_EVENT_NAME -eq "pull_request") {
             $BRANCH_NAME = $env.GITHUB_HEAD_REF
-        } else {
+        } elseif ($env.GITHUB_REF_NAME) {
+            # If we're in a normal push event, use the ref name (branch name)
             $BRANCH_NAME = $env.GITHUB_REF_NAME
+        } else {
+            # Default to "main" if no branch name can be found (e.g., detached HEAD state)
+            $BRANCH_NAME = "main"
         }
         
         Write-Host "Branch name: $BRANCH_NAME"
