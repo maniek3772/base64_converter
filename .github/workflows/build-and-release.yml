@@ -65,24 +65,25 @@ jobs:
         git add CHANGELOG.md
         git commit -m "Update CHANGELOG.md for ${{ env.VERSION }}"
         
-        # Check if the event is a pull request or a push
+        # Setting up Git authentication using PAT
+        git remote set-url origin https://github-actions:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+    
+        # Checking the branch name
         if ($env.GITHUB_EVENT_NAME -eq "pull_request") {
             $BRANCH_NAME = $env.GITHUB_HEAD_REF
         } elseif ($env.GITHUB_REF_NAME) {
-            # If we're in a normal push event, use the ref name (branch name)
             $BRANCH_NAME = $env.GITHUB_REF_NAME
         } else {
-            # Default to "main" if no branch name can be found (e.g., detached HEAD state)
             $BRANCH_NAME = "main"
         }
-        
+    
         Write-Host "Branch name: $BRANCH_NAME"
-        
-        # If it's from a fork, skip pushing
+    
+        # If this is a pull request from a fork, skip the push
         if ($env.GITHUB_EVENT_NAME -eq "pull_request" -and $env.GITHUB_HEAD_REPO -ne $env.GITHUB_REPOSITORY) {
             Write-Host "Pull request from fork detected. Skipping git push."
         } else {
-            Write-Host "Pushing to branch: $BRANCH_NAME"
+            Write-Host "Push into the branch: $BRANCH_NAME"
             git push origin HEAD:$BRANCH_NAME
         }
 
