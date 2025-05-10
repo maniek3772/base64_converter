@@ -64,7 +64,17 @@ jobs:
         git config --global user.email "${{ secrets.GH_USER_EMAIL }}"
         git add CHANGELOG.md
         git commit -m "Update CHANGELOG.md for ${{ env.VERSION }}"
-        git push
+        
+        # Set branch name (for push or pull request)
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          BRANCH_NAME="${{ github.head_ref }}"
+        else
+          BRANCH_NAME="${{ github.ref_name }}"
+        fi
+    
+        echo "Pushing to branch: $BRANCH_NAME"
+        git push origin HEAD:$BRANCH_NAME
+        
 
     # 9. Check dist directory
     - name: List dist folder
