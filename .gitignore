@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+
+# Virtual environment
+venv/
+ENV/
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# IDE / Editors
+.vscode/
+.idea/
