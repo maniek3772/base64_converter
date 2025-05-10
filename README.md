@@ -69,7 +69,7 @@ Simple graphical interface based on Tkinter.
 2. **Build .exe file command**
 
     ```bash
-    pyinstaller --onefile --windowed --icon=assets/icon.ico main.py
+    pyinstaller --onefile --windowed --name Base64_converter --icon=assets/icon.ico main.py
     ```
 
 3. **The EXE file can be found in:**
