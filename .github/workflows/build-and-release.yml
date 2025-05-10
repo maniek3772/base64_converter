@@ -75,7 +75,7 @@ jobs:
         Write-Host "Branch name: $BRANCH_NAME"
         
         # If it's from a fork, skip pushing
-        if ($env.GITHUB_EVENT_NAME -eq "pull_request" -and $env.GITHUB_HEAD_REPO != $env.GITHUB_REPOSITORY) {
+        if ($env.GITHUB_EVENT_NAME -eq "pull_request" -and $env.GITHUB_HEAD_REPO -ne $env.GITHUB_REPOSITORY) {
             Write-Host "Pull request from fork detected. Skipping git push."
         } else {
             Write-Host "Pushing to branch: $BRANCH_NAME"
