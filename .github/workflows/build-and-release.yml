@@ -28,12 +28,7 @@ jobs:
         pip install pyinstaller
         if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
-    # 4. Build EXE
-    - name: Build EXE with PyInstaller
-      run: |
-        pyinstaller --onefile --noconsole main.py
-
-    # 5. Get version from tag (np. v1.0.0)
+    # 4. Get version from tag (np. v1.0.0)
     - name: Extract version from ref (PowerShell)
       shell: pwsh
       run: |
@@ -41,12 +36,10 @@ jobs:
         $version = $env:GITHUB_REF -replace '^refs/tags/', ''
         Write-Host "VERSION=$version"
 
-    # 6. Change name EXE to Base64Converter_vX.X.X.exe
-    - name: Rename EXE with version (PowerShell)
-      shell: pwsh
+    # 5. Build EXE
+    - name: Build EXE with PyInstaller
       run: |
-        $version = $env:GITHUB_REF -replace '^refs/tags/', ''
-        Rename-Item -Path "main.exe" -NewName "Base64Converter_$version.exe"
+        pyinstaller --onefile --noconsole --name Base64Converter_$version main.py
 
     # 7. Generate CHANGELOG.md
     - name: Generate CHANGELOG.md
