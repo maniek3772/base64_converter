@@ -46,7 +46,7 @@ jobs:
       shell: pwsh
       run: |
         $version = $env:GITHUB_REF -replace '^refs/tags/', ''
-        Rename-Item -Path "Base64Converter_.exe" -NewName "Base64Converter_$version.exe"
+        Rename-Item -Path "main.exe" -NewName "Base64Converter_$version.exe"
 
     # 7. Generate CHANGELOG.md
     - name: Generate CHANGELOG.md
