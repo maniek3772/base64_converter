@@ -11,15 +11,15 @@ Simple graphical interface based on Tkinter.
 
 ## Screenshot
 
-*![Alt text](/assets/screenshot.png?raw=true "Main window")*
+[![Screenshot](assets/screenshot.PNG)](assets/screenshot.PNG)
 
 ## Start
 
 1. **Clone repository**
 
    ```bash
-   git clone https://github.com/TwojNick/base64_app.git
-   cd base64_app
+   git clone https://github.com/maniek3772/base64_converter.git
+   cd base64_converter
    ```
 
 2. **Create a virtual environment (optional)**
