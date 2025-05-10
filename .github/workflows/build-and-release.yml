@@ -1,0 +1,81 @@
+name: Build and Release EXE + CHANGELOG
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build app and changelog
+    runs-on: windows-latest
+
+    steps:
+    # 1. Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Install Python
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    # 3. Install dependencies (PyInstaller included)
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        if (Test-Path requirements.txt) { pip install -r requirements.txt }
+
+    # 4. Build EXE
+    - name: Build EXE with PyInstaller
+      run: |
+        pyinstaller --onefile --noconsole main.py
+
+    # 5. Get version from tag (np. v1.0.0)
+    - name: Get tag version
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+    # 6. Change name EXE to Base64Converter_vX.X.X.exe
+    - name: Rename EXE file
+      run: |
+        Rename-Item dist/main.exe Base64Converter_${{ env.VERSION }}.exe
+
+    # 7. Generate CHANGELOG.md
+    - name: Generate CHANGELOG.md
+      run: |
+        echo "# Changelog" > CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        git fetch --tags
+        $prevTag = git describe --tags --abbrev=0 HEAD^ 2>$null
+        if ($prevTag) {
+          git log $prevTag..HEAD --pretty=format:"* %s (%an)" >> CHANGELOG.md
+        } else {
+          git log --pretty=format:"* %s (%an)" >> CHANGELOG.md
+        }
+        type CHANGELOG.md
+
+    # 8. Commit and push CHANGELOG.md
+    - name: Commit and push CHANGELOG.md
+      run: |
+        git config --global user.name "${{ secrets.GH_USER_NAME }}"
+        git config --global user.email "${{ secrets.GH_USER_EMAIL }}"
+        git add CHANGELOG.md
+        git commit -m "Update CHANGELOG.md for ${{ env.VERSION }}"
+        git push
+
+    # 9. Check dist directory
+    - name: List dist folder
+      run: dir dist
+
+    # 10. Create GitHub Release (EXE + changelog)
+    - name: Create GitHub Release with changelog
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          dist/Base64Converter_${{ env.VERSION }}.exe
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
