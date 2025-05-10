@@ -65,16 +65,22 @@ jobs:
         git add CHANGELOG.md
         git commit -m "Update CHANGELOG.md for ${{ env.VERSION }}"
         
-        # Set branch name (for push or pull request)
-        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-          BRANCH_NAME="${{ github.head_ref }}"
-        else
-          BRANCH_NAME="${{ github.ref_name }}"
-        fi
-    
-        echo "Pushing to branch: $BRANCH_NAME"
-        git push origin HEAD:$BRANCH_NAME
+        # Check if the event is a pull request or a push
+        if ($env.GITHUB_EVENT_NAME -eq "pull_request") {
+            $BRANCH_NAME = $env.GITHUB_HEAD_REF
+        } else {
+            $BRANCH_NAME = $env.GITHUB_REF_NAME
+        }
         
+        Write-Host "Branch name: $BRANCH_NAME"
+        
+        # If it's from a fork, skip pushing
+        if ($env.GITHUB_EVENT_NAME -eq "pull_request" -and $env.GITHUB_HEAD_REPO != $env.GITHUB_REPOSITORY) {
+            Write-Host "Pull request from fork detected. Skipping git push."
+        } else {
+            Write-Host "Pushing to branch: $BRANCH_NAME"
+            git push origin HEAD:$BRANCH_NAME
+        }
 
     # 9. Check dist directory
     - name: List dist folder
