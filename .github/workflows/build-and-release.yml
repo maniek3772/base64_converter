@@ -32,16 +32,16 @@ jobs:
     - name: Extract version from ref (PowerShell)
       shell: pwsh
       run: |
-        Write-Host "GITHUB_REF=$env:GITHUB_REF"
         $version = $env:GITHUB_REF -replace '^refs/tags/', ''
-        Write-Host "VERSION=$version"
+        Write-Host "Extracted VERSION=$version"
+        "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     # 5. Build EXE
     - name: Build EXE with PyInstaller
       run: |
-        pyinstaller --onefile --noconsole --name Base64Converter_$version main.py
+        pyinstaller --onefile --noconsole --name Base64Converter_${{ env.VERSION }} main.py
 
-    # 7. Generate CHANGELOG.md
+    # 6. Generate CHANGELOG.md
     - name: Generate CHANGELOG.md
       run: |
         echo "# Changelog" > CHANGELOG.md
@@ -56,7 +56,7 @@ jobs:
         }
         type CHANGELOG.md
 
-    # 8. Commit and push CHANGELOG.md
+    # 7. Commit and push CHANGELOG.md
     - name: Commit and push CHANGELOG.md
       run: |
         git config --global user.name "${{ secrets.GH_USER_NAME }}"
@@ -86,11 +86,11 @@ jobs:
             git push origin HEAD:$BRANCH_NAME
         }
 
-    # 9. Check dist directory
+    # 8. Check dist directory
     - name: List dist folder
       run: dir dist
 
-    # 10. Create GitHub Release (EXE + changelog)
+    # 9. Create GitHub Release (EXE + changelog)
     - name: Create GitHub Release with changelog
       uses: softprops/action-gh-release@v2
       with:
